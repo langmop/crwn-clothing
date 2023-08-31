@@ -1,13 +1,28 @@
 body {
   margin: 0;
-  font-family: 'Open Sans Condensed', sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+div {
+  box-sizing: border-box;
+}
+
+.input-class:focus ~ label {
+  top: -68px !important;
+  transition: 0.2s ease-in-out all
+}
+
+.input-class ~ label{
+  top: -68px;
+  transition: 0.2s ease-in-out all
+}
+
+.input-class[value=""] ~ label{
+  top:-40px;
 }
 
 @tailwind base;
