@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import {
   signInWithGooglePopup,
   signInWithTwitterPopup,
-  createUserDocumentFromAuth,
   signInWithAddedEmailAndPassword,
 } from "../../utils/firebase.util";
 import classNames from "classnames";
@@ -10,10 +9,12 @@ import Login from "../../components/login-form/login-form.component";
 import SignUp from "../../components/sign-up-form/sign-up-form.component";
 import { signUpUsingEmailAndPassword } from "../../utils/firebase.util";
 import Notiflix from "notiflix";
+import { useNavigate } from "react-router-dom";
 
 const Authentication = () => {
   const [authMode, setAuthMode] = useState("Login");
   const [formState, setFormState] = useState({});
+  const navigate = useNavigate();
 
   const onInputChange = (event) => {
     const { name, value } = event.target;
@@ -27,7 +28,6 @@ const Authentication = () => {
     try {
       const response = await signInWithGooglePopup();
       const { user } = response;
-      const userRef = await createUserDocumentFromAuth(user);
       Notiflix.Notify.success("Successfully Signin by Google");
     } catch (err) {
       Notiflix.Notify.failure("Failed SignIn Using Google");
@@ -68,6 +68,7 @@ const Authentication = () => {
 
           if (!signInResult.error) {
             Notiflix.Notify.success("Signed Up successfully");
+            navigate("/");
             console.log(signInResult);
           } else {
             Notiflix.Notify.failure(signInResult.errorMessage);
@@ -89,7 +90,6 @@ const Authentication = () => {
 
             if (!result.error) {
               const { user } = result;
-              const savedDocument = createUserDocumentFromAuth(user);
               Notiflix.Notify.success("Signed Up successfully");
             } else {
               Notiflix.Notify.failure(result.errorMessage);

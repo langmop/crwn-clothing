@@ -9,9 +9,22 @@ import {
   signInWithPopup,
   GoogleAuthProvider,
   TwitterAuthProvider,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  onAuthStateChanged,
+  signOut,
 } from "firebase/auth";
 
-import { getFirestore, getDoc, setDoc, doc } from "firebase/firestore";
+import {
+  getFirestore,
+  getDoc,
+  setDoc,
+  doc,
+  collection,
+  writeBatch,
+  query,
+  getDocs,
+} from "firebase/firestore";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -46,6 +59,34 @@ export const signInWithTwitterPopup = () =>
 
 const db = getFirestore();
 
+export const addCollectionAndDocuments = async (
+  collectionKey,
+  objectsToAdd
+) => {
+  const collectionReference = collection(db, collectionKey);
+  const batch = writeBatch(db);
+  objectsToAdd.forEach((element) => {
+    const docRef = doc(collectionReference, element.title.toLowerCase());
+    batch.set(docRef, element);
+    console.log("done");
+  });
+
+  await batch.commit();
+};
+
+export const getCategoriesAndDocument = async () => {
+  const collectionReference = collection(db, "categories");
+  const q = query(collectionReference);
+  const querySnapshot = await getDocs(q);
+  const categoryMap = querySnapshot.docs.reduce((acc, docsSnapshot) => {
+    const { title, items } = docsSnapshot.data();
+    acc[title] = items;
+    return acc;
+  }, {});
+
+  return categoryMap;
+};
+
 export const createUserDocumentFromAuth = async (userAuth) => {
   const userDocRef = doc(db, "users", userAuth.uid);
   const userSnapShot = await getDoc(userDocRef);
@@ -68,4 +109,36 @@ export const createUserDocumentFromAuth = async (userAuth) => {
   }
 
   return userDocRef;
+};
+
+export const signUpUsingEmailAndPassword = async ({ email, password }) => {
+  if (!email && !password) return;
+
+  try {
+    const result = await createUserWithEmailAndPassword(auth, email, password);
+    return result;
+  } catch (err) {
+    return { error: true, errorMessage: err.message };
+  }
+};
+
+export const signInWithAddedEmailAndPassword = async ({ email, password }) => {
+  try {
+    const signinData = await signInWithEmailAndPassword(auth, email, password);
+
+    return signinData;
+  } catch (err) {
+    return {
+      error: true,
+      errorMessage: err.message,
+    };
+  }
+};
+
+export const onAuthChangeListener = (cb) => {
+  return onAuthStateChanged(auth, cb);
+};
+
+export const onLogoutClick = async () => {
+  return await signOut(auth).then(console.log).catch(console.log);
 };

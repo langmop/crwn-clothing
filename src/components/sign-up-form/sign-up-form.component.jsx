@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { signUpUsingEmailAndPassword } from "../../utils/firebase.util";
 import TextField from "../form-field/text-field.component";
+import Notiflix from "notiflix";
 
 const initialState = {
   Email: "",
@@ -10,7 +11,6 @@ const initialState = {
 };
 
 const SignUp = ({ formState, onInputChange }) => {
-
   const { Email, Password } = formState;
 
   const confirmPassword = formState["Confirm Password"];
@@ -20,6 +20,8 @@ const SignUp = ({ formState, onInputChange }) => {
     event.preventDefault();
     if (Password == confirmPassword) {
       const authResult = await signUpUsingEmailAndPassword({ Email, Password });
+    } else {
+      Notiflix.Notify.failure("Password does not Match");
     }
   };
 
